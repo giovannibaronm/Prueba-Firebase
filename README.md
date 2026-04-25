@@ -3,6 +3,7 @@
 Aplicacion full-stack minima para aprender las capas principales:
 
 - Frontend: React con JSX en `app/page.jsx`.
+- Tablero TeamSIIx: ruta `/TeamSIIx` en `app/TeamSIIx/page.jsx`.
 - Backend: API route de Next.js en `app/api/registros/route.js`.
 - Base de datos: Cloud Firestore usando Firebase Admin en `lib/firebase-admin.js`.
 

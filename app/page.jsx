@@ -89,6 +89,9 @@ export default function HomePage() {
           <li>Backend: API route de Next.js.</li>
           <li>Base de datos: Cloud Firestore.</li>
         </ul>
+        <a className="route-link" href="/TeamSIIx">
+          Abrir tablero TeamSIIx
+        </a>
       </section>
 
       <section className="workspace" aria-label="Formulario y registros">

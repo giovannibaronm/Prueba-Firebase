@@ -1,0 +1,10 @@
+# Firebase App Hosting reads this file from the repository root.
+# Keep secrets out of GitHub; add sensitive values in the Firebase Console
+# or reference Cloud Secret Manager secrets from this file later.
+
+runConfig:
+  minInstances: 0
+  maxInstances: 10
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512

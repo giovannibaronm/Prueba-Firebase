@@ -48,16 +48,6 @@ export async function GET(request) {
         body: JSON.stringify({
           ids,
           $expand: "Relations",
-          fields: [
-            "System.Id",
-            "System.WorkItemType",
-            "System.Title",
-            "System.State",
-            "System.AssignedTo",
-            "System.ChangedDate",
-            "System.CreatedDate",
-            "System.Tags",
-          ],
         }),
       },
     );

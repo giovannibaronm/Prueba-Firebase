@@ -246,6 +246,16 @@ export default function HomePage() {
                 <span>{item.state}</span>
                 {item.assignedTo && <span>{item.assignedTo}</span>}
               </div>
+              {item.customFields?.length > 0 && (
+                <dl className="custom-fields">
+                  {item.customFields.slice(0, 8).map((field) => (
+                    <div key={field.key}>
+                      <dt>{field.key}</dt>
+                      <dd>{field.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
               <div className="comments">
                 {item.comments.length === 0 ? (
                   <p>No tiene comentarios recientes.</p>
@@ -304,6 +314,12 @@ function downloadCsv(filename, tree) {
       "estado",
       "asignadoA",
       "fechaCambio",
+      "descripcion",
+      "prioridad",
+      "fechaInicio",
+      "fechaVencimiento",
+      "fechaObjetivo",
+      "camposAdicionales",
       "comentarios",
     ],
   ];
@@ -318,6 +334,12 @@ function downloadCsv(filename, tree) {
       item.state,
       item.assignedTo,
       item.changedDate,
+      item.description,
+      item.priority,
+      item.startDate,
+      item.dueDate,
+      item.targetDate,
+      (item.customFields ?? []).map((field) => `${field.key}: ${field.value}`).join(" | "),
       item.comments.map((comment) => `${comment.createdBy}: ${comment.text}`).join(" | "),
     ]);
   });

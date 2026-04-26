@@ -62,7 +62,13 @@ export async function GET(request) {
         assignedTo: getIdentityName(item.fields?.["System.AssignedTo"]),
         changedDate: item.fields?.["System.ChangedDate"] ?? "",
         createdDate: item.fields?.["System.CreatedDate"] ?? "",
+        description: stripHtml(item.fields?.["System.Description"] ?? ""),
+        priority: item.fields?.["Microsoft.VSTS.Common.Priority"] ?? "",
+        startDate: item.fields?.["Microsoft.VSTS.Scheduling.StartDate"] ?? "",
+        dueDate: item.fields?.["Microsoft.VSTS.Scheduling.DueDate"] ?? "",
+        targetDate: item.fields?.["Microsoft.VSTS.Scheduling.TargetDate"] ?? "",
         tags: item.fields?.["System.Tags"] ?? "",
+        customFields: getCustomFields(item.fields),
         relations: getHierarchyRelations(item),
         comments: await getComments(config.value, item.id),
       })),
@@ -187,6 +193,64 @@ function getTypeOrder(type) {
 
   return order[type] ?? 99;
 }
+
+function getCustomFields(fields = {}) {
+  return Object.entries(fields)
+    .filter(([key]) => !KNOWN_FIELDS.has(key))
+    .map(([key, value]) => ({
+      key,
+      value: normalizeFieldValue(value),
+    }))
+    .filter((field) => field.value !== "");
+}
+
+function normalizeFieldValue(value) {
+  if (value == null) {
+    return "";
+  }
+
+  if (typeof value === "object") {
+    return getIdentityName(value) || JSON.stringify(value);
+  }
+
+  return stripHtml(String(value));
+}
+
+const KNOWN_FIELDS = new Set([
+  "System.Id",
+  "System.AreaId",
+  "System.AreaPath",
+  "System.TeamProject",
+  "System.NodeName",
+  "System.AreaLevel1",
+  "System.Rev",
+  "System.AuthorizedDate",
+  "System.RevisedDate",
+  "System.IterationId",
+  "System.IterationPath",
+  "System.IterationLevel1",
+  "System.WorkItemType",
+  "System.State",
+  "System.Reason",
+  "System.AssignedTo",
+  "System.CreatedDate",
+  "System.CreatedBy",
+  "System.ChangedDate",
+  "System.ChangedBy",
+  "System.AuthorizedAs",
+  "System.PersonId",
+  "System.Watermark",
+  "System.CommentCount",
+  "System.Title",
+  "System.BoardColumn",
+  "System.BoardColumnDone",
+  "System.Description",
+  "System.Tags",
+  "Microsoft.VSTS.Common.Priority",
+  "Microsoft.VSTS.Scheduling.StartDate",
+  "Microsoft.VSTS.Scheduling.DueDate",
+  "Microsoft.VSTS.Scheduling.TargetDate",
+]);
 
 async function getComments(config, workItemId) {
   const data = await azureDevOpsFetch(

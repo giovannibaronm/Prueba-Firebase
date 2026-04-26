@@ -7,6 +7,16 @@ Aplicacion full-stack minima para aprender las capas principales:
 - Backend: API route de Next.js en `app/api/registros/route.js`.
 - Base de datos: Cloud Firestore usando Firebase Admin en `lib/firebase-admin.js`.
 
+## Contexto persistente
+
+Antes de retomar trabajo en otro chat o desde un agente en VS Code, leer:
+
+```text
+docs/contexto-proyecto.md
+```
+
+Ese archivo debe mantenerse actualizado con cambios relevantes de arquitectura, rutas, variables, integraciones y pendientes.
+
 ## Crear Firebase
 
 1. Entra a <https://console.firebase.google.com/>.

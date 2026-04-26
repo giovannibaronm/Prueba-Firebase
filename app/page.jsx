@@ -7,6 +7,7 @@ export default function HomePage() {
   const [campo2, setCampo2] = useState("");
   const [registros, setRegistros] = useState([]);
   const [workItems, setWorkItems] = useState([]);
+  const [workItemTree, setWorkItemTree] = useState([]);
   const [status, setStatus] = useState("Listo para guardar.");
   const [azdoStatus, setAzdoStatus] = useState("Listo para consultar Azure DevOps.");
   const [isError, setIsError] = useState(false);
@@ -85,7 +86,7 @@ export default function HomePage() {
     setAzdoStatus("Consultando Azure DevOps...");
 
     try {
-      const response = await fetch("/api/azure-devops/workitems?limit=10", {
+      const response = await fetch("/api/azure-devops/workitems?limit=50", {
         cache: "no-store",
       });
       const data = await response.json();
@@ -95,6 +96,7 @@ export default function HomePage() {
       }
 
       setWorkItems(data.workItems ?? []);
+      setWorkItemTree(data.tree ?? []);
       setAzdoStatus(`Se cargaron ${data.workItems?.length ?? 0} Work Items.`);
     } catch (error) {
       setIsAzdoError(true);
@@ -187,12 +189,23 @@ export default function HomePage() {
           onClick={loadWorkItems}
           type="button"
         >
-          {isLoadingWorkItems ? "Consultando..." : "Traer Work Items"}
+          {isLoadingWorkItems ? "Consultando..." : "Traer 50 Work Items"}
         </button>
 
         <p className={isAzdoError ? "status error" : "status"} aria-live="polite">
           {azdoStatus}
         </p>
+
+        {workItemTree.length > 0 && (
+          <div className="tree-panel">
+            <h3>Arbol Epic / Feature / Task</h3>
+            <ul className="tree">
+              {workItemTree.map((node) => (
+                <WorkItemTreeNode key={node.id} node={node} />
+              ))}
+            </ul>
+          </div>
+        )}
 
         <ul className="workitems">
           {workItems.map((item) => (
@@ -224,4 +237,27 @@ export default function HomePage() {
       </section>
     </main>
   );
+}
+
+function WorkItemTreeNode({ node }) {
+  return (
+    <li className="tree-node">
+      <div className="tree-card">
+        <span className={`type-pill ${getTypeClass(node.type)}`}>{node.type}</span>
+        <strong>#{node.id} {node.title}</strong>
+        <small>{node.state}{node.assignedTo ? ` · ${node.assignedTo}` : ""}</small>
+      </div>
+      {node.children.length > 0 && (
+        <ul className="tree">
+          {node.children.map((child) => (
+            <WorkItemTreeNode key={child.id} node={child} />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
+function getTypeClass(type) {
+  return String(type).toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }

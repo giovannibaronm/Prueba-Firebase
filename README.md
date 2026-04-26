@@ -77,7 +77,7 @@ Configura estas variables:
 ```bash
 AZDO_ORG=tu-organizacion
 AZDO_PROJECT=tu-proyecto
-AZDO_LIMIT=10
+AZDO_LIMIT=50
 AZDO_TOKEN=tu-token-con-permiso-work-items-read
 ```
 

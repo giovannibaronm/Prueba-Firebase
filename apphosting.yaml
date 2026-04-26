@@ -19,6 +19,6 @@ env:
     availability:
       - RUNTIME
   - variable: AZDO_LIMIT
-    value: "10"
+    value: "50"
     availability:
       - RUNTIME

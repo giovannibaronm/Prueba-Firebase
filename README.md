@@ -81,12 +81,6 @@ AZDO_LIMIT=10
 AZDO_TOKEN=tu-token-con-permiso-work-items-read
 ```
 
-`AZDO_TOKEN` debe agregarse como variable secreta en Firebase App Hosting o en tu entorno local. No lo guardes en GitHub.
+`AZDO_TOKEN` debe agregarse como variable de entorno runtime en Firebase App Hosting o en tu entorno local. No lo guardes en GitHub.
 
-Con Firebase CLI puedes crear el secreto asi:
-
-```bash
-firebase apphosting:secrets:set AZDO_TOKEN
-```
-
-Luego vuelve a desplegar el backend desde App Hosting.
+Para probar rapido en Firebase Console, abre tu backend de App Hosting, entra a configuracion de variables de entorno y agrega `AZDO_TOKEN` como variable runtime. Luego vuelve a desplegar el backend desde App Hosting.

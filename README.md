@@ -67,3 +67,18 @@ App Hosting hara un nuevo despliegue cuando hagas push a `main`.
 - `lib/firebase-admin.js` inicializa Firebase Admin en el servidor.
 - `firestore.rules` bloquea acceso directo desde clientes. La escritura pasa por el backend.
 - `apphosting.yaml` configura recursos de App Hosting sin guardar secretos en el repo.
+
+## Azure DevOps
+
+La home incluye un boton de prueba para traer Work Items y sus ultimos comentarios desde Azure DevOps.
+
+Configura estas variables:
+
+```bash
+AZDO_ORG=tu-organizacion
+AZDO_PROJECT=tu-proyecto
+AZDO_LIMIT=10
+AZDO_TOKEN=tu-token-con-permiso-work-items-read
+```
+
+`AZDO_TOKEN` debe agregarse como variable secreta en Firebase App Hosting o en tu entorno local. No lo guardes en GitHub.

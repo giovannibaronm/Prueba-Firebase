@@ -6,9 +6,13 @@ export default function HomePage() {
   const [campo1, setCampo1] = useState("");
   const [campo2, setCampo2] = useState("");
   const [registros, setRegistros] = useState([]);
+  const [workItems, setWorkItems] = useState([]);
   const [status, setStatus] = useState("Listo para guardar.");
+  const [azdoStatus, setAzdoStatus] = useState("Listo para consultar Azure DevOps.");
   const [isError, setIsError] = useState(false);
+  const [isAzdoError, setIsAzdoError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingWorkItems, setIsLoadingWorkItems] = useState(false);
 
   async function loadRegistros() {
     const response = await fetch("/api/registros", {
@@ -72,6 +76,31 @@ export default function HomePage() {
       setStatus(error.message);
     } finally {
       setIsSaving(false);
+    }
+  }
+
+  async function loadWorkItems() {
+    setIsLoadingWorkItems(true);
+    setIsAzdoError(false);
+    setAzdoStatus("Consultando Azure DevOps...");
+
+    try {
+      const response = await fetch("/api/azure-devops/workitems?limit=10", {
+        cache: "no-store",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "No se pudieron cargar los Work Items.");
+      }
+
+      setWorkItems(data.workItems ?? []);
+      setAzdoStatus(`Se cargaron ${data.workItems?.length ?? 0} Work Items.`);
+    } catch (error) {
+      setIsAzdoError(true);
+      setAzdoStatus(error.message);
+    } finally {
+      setIsLoadingWorkItems(false);
     }
   }
 
@@ -145,6 +174,52 @@ export default function HomePage() {
               </li>
             ))
           )}
+        </ul>
+
+        <div className="list-header">
+          <h2>Azure DevOps</h2>
+          <span className="count">{workItems.length}</span>
+        </div>
+
+        <button
+          className="submit secondary"
+          disabled={isLoadingWorkItems}
+          onClick={loadWorkItems}
+          type="button"
+        >
+          {isLoadingWorkItems ? "Consultando..." : "Traer Work Items"}
+        </button>
+
+        <p className={isAzdoError ? "status error" : "status"} aria-live="polite">
+          {azdoStatus}
+        </p>
+
+        <ul className="workitems">
+          {workItems.map((item) => (
+            <li className="workitem" key={item.id}>
+              <div className="workitem-title">
+                <span>#{item.id}</span>
+                <strong>{item.title}</strong>
+              </div>
+              <div className="workitem-meta">
+                <span>{item.type}</span>
+                <span>{item.state}</span>
+                {item.assignedTo && <span>{item.assignedTo}</span>}
+              </div>
+              <div className="comments">
+                {item.comments.length === 0 ? (
+                  <p>No tiene comentarios recientes.</p>
+                ) : (
+                  item.comments.map((comment) => (
+                    <article className="comment" key={comment.id}>
+                      <strong>{comment.createdBy || "Sin autor"}</strong>
+                      <p>{comment.text || "Comentario sin texto."}</p>
+                    </article>
+                  ))
+                )}
+              </div>
+            </li>
+          ))}
         </ul>
       </section>
     </main>

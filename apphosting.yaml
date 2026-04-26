@@ -8,3 +8,17 @@ runConfig:
   concurrency: 80
   cpu: 1
   memoryMiB: 512
+
+env:
+  - variable: AZDO_ORG
+    value: "SecretariaIntegracionSocial"
+    availability:
+      - RUNTIME
+  - variable: AZDO_PROJECT
+    value: "Fabrica de datos"
+    availability:
+      - RUNTIME
+  - variable: AZDO_LIMIT
+    value: "10"
+    availability:
+      - RUNTIME

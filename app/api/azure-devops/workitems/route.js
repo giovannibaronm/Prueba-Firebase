@@ -125,11 +125,24 @@ function getAzureDevOpsConfig() {
   const org = process.env.AZDO_ORG;
   const project = process.env.AZDO_PROJECT;
   const token = process.env.AZDO_TOKEN;
+  const missing = [];
 
-  if (!org || !project || !token) {
+  if (!org) {
+    missing.push("AZDO_ORG");
+  }
+
+  if (!project) {
+    missing.push("AZDO_PROJECT");
+  }
+
+  if (!token) {
+    missing.push("AZDO_TOKEN");
+  }
+
+  if (missing.length > 0) {
     return {
       ok: false,
-      error: "Faltan variables AZDO_ORG, AZDO_PROJECT o AZDO_TOKEN.",
+      error: `Faltan variables de entorno: ${missing.join(", ")}.`,
     };
   }
 

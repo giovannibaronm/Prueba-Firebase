@@ -22,3 +22,7 @@ env:
     value: "10"
     availability:
       - RUNTIME
+  - variable: AZDO_TOKEN
+    secret: AZDO_TOKEN
+    availability:
+      - RUNTIME

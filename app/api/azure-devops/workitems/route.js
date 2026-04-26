@@ -52,8 +52,9 @@ export async function GET(request) {
       },
     );
 
+    const rawWorkItems = batch.value ?? [];
     const workItems = await Promise.all(
-      (batch.value ?? []).map(async (item) => ({
+      rawWorkItems.map(async (item) => ({
         id: item.id,
         type: item.fields?.["System.WorkItemType"] ?? "",
         title: item.fields?.["System.Title"] ?? "",
@@ -70,6 +71,7 @@ export async function GET(request) {
     return NextResponse.json({
       workItems,
       tree: buildWorkItemTree(workItems),
+      raw: rawWorkItems,
     });
   } catch (error) {
     console.error(error);
@@ -101,12 +103,12 @@ function buildWorkItemTree(workItems) {
       }
 
       if (relation.kind === "child") {
-        node.children.push(target);
+        addUniqueChild(node, target);
         childIds.add(target.id);
       }
 
       if (relation.kind === "parent") {
-        target.children.push(node);
+        addUniqueChild(target, node);
         childIds.add(node.id);
       }
     });
@@ -114,6 +116,18 @@ function buildWorkItemTree(workItems) {
 
   const roots = [...nodes.values()].filter((node) => !childIds.has(node.id));
   return sortTree(roots);
+}
+
+function addUniqueChild(parent, child) {
+  if (parent.id === child.id) {
+    return;
+  }
+
+  if (parent.children.some((existing) => existing.id === child.id)) {
+    return;
+  }
+
+  parent.children.push(child);
 }
 
 function sortTree(nodes) {

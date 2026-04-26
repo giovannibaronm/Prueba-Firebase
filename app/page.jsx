@@ -8,6 +8,7 @@ export default function HomePage() {
   const [registros, setRegistros] = useState([]);
   const [workItems, setWorkItems] = useState([]);
   const [workItemTree, setWorkItemTree] = useState([]);
+  const [rawWorkItems, setRawWorkItems] = useState([]);
   const [status, setStatus] = useState("Listo para guardar.");
   const [azdoStatus, setAzdoStatus] = useState("Listo para consultar Azure DevOps.");
   const [isError, setIsError] = useState(false);
@@ -97,6 +98,7 @@ export default function HomePage() {
 
       setWorkItems(data.workItems ?? []);
       setWorkItemTree(data.tree ?? []);
+      setRawWorkItems(data.raw ?? []);
       setAzdoStatus(`Se cargaron ${data.workItems?.length ?? 0} Work Items.`);
     } catch (error) {
       setIsAzdoError(true);
@@ -198,7 +200,32 @@ export default function HomePage() {
 
         {workItemTree.length > 0 && (
           <div className="tree-panel">
-            <h3>Arbol Epic / Feature / Task</h3>
+            <div className="tree-header">
+              <h3>Arbol Epic / Feature / Task</h3>
+              <div className="download-actions">
+                <button
+                  type="button"
+                  onClick={() => downloadJson("azure-devops-crudo.json", rawWorkItems)}
+                >
+                  JSON crudo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => downloadJson("azure-devops-organizado.json", {
+                    workItems,
+                    tree: workItemTree,
+                  })}
+                >
+                  JSON organizado
+                </button>
+                <button
+                  type="button"
+                  onClick={() => downloadCsv("azure-devops-arbol.csv", workItemTree)}
+                >
+                  CSV arbol
+                </button>
+              </div>
+            </div>
             <ul className="tree">
               {workItemTree.map((node) => (
                 <WorkItemTreeNode key={node.id} node={node} />
@@ -260,4 +287,83 @@ function WorkItemTreeNode({ node }) {
 
 function getTypeClass(type) {
   return String(type).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+function downloadJson(filename, value) {
+  downloadFile(filename, JSON.stringify(value, null, 2), "application/json");
+}
+
+function downloadCsv(filename, tree) {
+  const rows = [
+    [
+      "nivel",
+      "ruta",
+      "id",
+      "tipo",
+      "titulo",
+      "estado",
+      "asignadoA",
+      "fechaCambio",
+      "comentarios",
+    ],
+  ];
+
+  flattenTree(tree).forEach((item) => {
+    rows.push([
+      item.level,
+      item.path,
+      item.id,
+      item.type,
+      item.title,
+      item.state,
+      item.assignedTo,
+      item.changedDate,
+      item.comments.map((comment) => `${comment.createdBy}: ${comment.text}`).join(" | "),
+    ]);
+  });
+
+  const csv = rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
+  downloadFile(filename, csv, "text/csv;charset=utf-8");
+}
+
+function flattenTree(nodes, parentPath = "", level = 1, visited = new Set()) {
+  return nodes.flatMap((node) => {
+    const key = `${parentPath}/${node.id}`;
+
+    if (visited.has(key)) {
+      return [];
+    }
+
+    const nextVisited = new Set(visited);
+    nextVisited.add(key);
+
+    const path = parentPath ? `${parentPath} > #${node.id}` : `#${node.id}`;
+    const current = {
+      ...node,
+      level,
+      path,
+    };
+
+    return [
+      current,
+      ...flattenTree(node.children ?? [], path, level + 1, nextVisited),
+    ];
+  });
+}
+
+function csvCell(value) {
+  const text = String(value ?? "");
+  return `"${text.replaceAll('"', '""')}"`;
+}
+
+function downloadFile(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }

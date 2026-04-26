@@ -15,7 +15,7 @@ env:
     availability:
       - RUNTIME
   - variable: AZDO_PROJECT
-    value: "Fabrica de datos"
+    value: "TeamSIIx"
     availability:
       - RUNTIME
   - variable: AZDO_LIMIT
